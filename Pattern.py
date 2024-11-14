@@ -23,6 +23,19 @@ def GetOpenIndices (network_dict):
             open_inds.append(ind)
     return open_inds
 
+def GetConnectedIndices (network_dict):
+    # Store all the indices
+    inds_all = []
+    for name, inds in network_dict.items():
+        inds_all.extend(inds)
+
+    # Store the open indices which appear only once
+    connected_inds = []
+    for ind in inds_all:
+        if inds_all.count(ind) != 1:
+            connected_inds.append(ind)
+    return connected_inds
+
 def ToNetworkString (network_dict):
     CheckDuplicate (network_dict)
 
@@ -64,7 +77,8 @@ def ToNetworkString (network_dict):
     res.append("TOUT: "+ind_str)
     return res
 
-def Prime (network_dict):
+def Prime (network_dict, excep=[], only=[]):
+    assert len(excep) == 0 or len(only) == 0
     new_dict = dict()
     for name in network_dict:
         if name != "TOUT":
@@ -72,7 +86,37 @@ def Prime (network_dict):
         else:
             name_new = name
 
-        inds_new = [ind+"'" for ind in network_dict[name]]
+        inds_new = []
+        for ind in network_dict[name]:
+            if len(only) != 0:
+                if ind in only:
+                    inds_new.append(ind+"'")
+                else:
+                    inds_new.append(ind)
+            else:
+                if ind not in excep:
+                    inds_new.append(ind+"'")
+                else:
+                    inds_new.append(ind)
+        new_dict[name_new] = inds_new
+    return new_dict
+
+def PrimeConnected (network_dict, add=[]):
+    connceted = GetConnectedIndices (network_dict)
+
+    new_dict = dict()
+    for name in network_dict:
+        if name != "TOUT":
+            name_new = name+"'"
+        else:
+            name_new = name
+
+        inds_new = []
+        for ind in network_dict[name]:
+            if ind in connceted or ind in add:
+                inds_new.append(ind+"'")
+            else:
+                inds_new.append(ind)
         new_dict[name_new] = inds_new
     return new_dict
 
@@ -97,8 +141,10 @@ def ReplaceIndex (network_dict, old_inds, new_inds):
         new_dict[name] = new_inds
     return new_dict
 
-def Combine (network_dict1, network_dict2):
-    new_dict = network_dict1 | network_dict2
+def Combine (network_dict1, *others):
+    new_dict = copy.copy(network_dict1)
+    for each in others:
+        new_dict.update(each)
     if "TOUT" in new_dict:
         del new_dict["TOUT"]
     return new_dict

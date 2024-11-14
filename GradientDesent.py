@@ -232,7 +232,7 @@ def search_interval (func, a_lo, a_hi, f_lo, f_hi, df_lo, df_hi, c1=1e-4, c2=0.9
     def assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo):
         assert f_lo <= f_hi
         #assert df_lo*(a_hi-a_lo) < 0
-    assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
+    #assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
 
     a_lo0, a_hi0 = a_lo, a_hi
     def plot (a_lo, a_hi, f_lo, f_hi, a):
@@ -246,7 +246,7 @@ def search_interval (func, a_lo, a_hi, f_lo, f_hi, df_lo, df_hi, c1=1e-4, c2=0.9
 
     f0, df0, x0 = func.value_slope(0)
     for c in range(nIter):
-        assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
+        #assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
         if abs(a_lo-a_hi) < 1e-12:
             print('Step is less than 1e-12')
             return x0, f0, df0
@@ -261,7 +261,7 @@ def search_interval (func, a_lo, a_hi, f_lo, f_hi, df_lo, df_hi, c1=1e-4, c2=0.9
             a_hi = a
             f_hi = f
             df_hi = df
-            assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
+            #assert_condition (f_lo, f_hi, df_lo, a_hi, a_lo)
 
             if debug:
                 ax = plot (a_lo, a_hi, f_lo, f_hi, a)

@@ -26,7 +26,17 @@ class NetworkFunction:
             else:
                 # Define network
                 network = cytnx.Network()
+
+                '''print("==========================================")
+                for gg in pattern:
+                    print(gg, pattern[gg])
+                print("------------------------------------------")
+                for gg in pat.ToNetworkString(pattern):
+                    print(gg)'''
+
                 network.FromString (pat.ToNetworkString(pattern))
+
+
 
                 # Put actual tensors into the network
                 for name in pattern:

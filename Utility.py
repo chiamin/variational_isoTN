@@ -15,10 +15,17 @@ def random_tensor (shape, dtype=float):
 # W = d x D matrix, d >= D
 # W^\dagger W = I
 def random_isometry (d, D, dtype=float):
-    assert D <= d
+    # assert d >= D
+    transpose = False
+    if D > d:
+        d, D = D, d
+        transpose = True
     A = random_tensor((d,D), dtype)
     U, S, Vh = np.linalg.svd (A, full_matrices=False)
-    assert U.shape == A.shape
+    if transpose:
+        U = U.T
+    #print(U.shape, A.shape, transpose)
+    #assert U.shape == A.shape
     return U
 
 def inner (x1, x2):

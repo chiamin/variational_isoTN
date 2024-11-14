@@ -13,6 +13,44 @@ import Utility as ut
 import CostFunction as cf
 import GradientDesent as gd
 
+def getDiff (AL, C, AR):
+    #
+    #          s
+    #          |
+    #          |
+    #   l ----AL--------C---- r
+    #               c
+    G1 = {
+        "AL": ["l", "s", "c"],
+        "C": ["c", "r"],
+        "TOUT": ["l","s","r"]
+    }
+    #                   s
+    #                   |
+    #                   |
+    #   l ----C--------AR---- r
+    #              c
+    G2 = {
+        "AR": ["c","s","r"],
+        "C": ["l","c"],
+        "TOUT": ["l","s","r"]
+    }
+    #
+    network1 = cytnx.Network()
+    network1.FromString (pat.ToNetworkString(G1))
+    network2 = cytnx.Network()
+    network2.FromString (pat.ToNetworkString(G2))
+
+    network1.PutUniTensor("AL", AL, ['l','s',"r"])
+    network1.PutUniTensor("C", C, ['l',"r"])
+    T1 = network1.Launch()
+    network2.PutUniTensor("AR", AR, ['l','s',"r"])
+    network2.PutUniTensor("C", C, ['l',"r"])
+    T2 = network2.Launch()
+
+    T = T1 - T2
+    return T.Norm().item()
+
 def test_gradient_descent_TFIM():
     rho = 10
 
@@ -88,7 +126,7 @@ def test_gradient_descent_TFIM():
 
     # Define tensors
     d = 2
-    D = 20
+    D = 32
     np.random.seed(100)
     dtype = float
     AL = ut.random_isometry(d*D, D, dtype).reshape((D,d,D))
@@ -121,7 +159,7 @@ def test_gradient_descent_TFIM():
     exact = -0.317878160486075589
 
     constraint_crit = 1e-4
-    rho_max = 100
+    rho_max = 1000
     nGD = 1
     N_linesearch = 20
     for i in range(4001):
@@ -149,9 +187,11 @@ def test_gradient_descent_TFIM():
             cost_func.nets.networks[3][0] = 2*rho
             cost_func.nets.networks[4][0] = -2*rho'''
 
+        if rho < rho_max:
+            rho *= 1.1
         if i % 20 == 0:
-            constraint_weight = cost_func.nets.terms[-1]+cost_func.nets.terms[-2]
-            print(i, cost_func.nets.terms[0], constraint_weight, slope, rho)
+            constraint = getDiff(AL, C, AR)
+            print(i, cost_func.nets.terms[0], constraint, slope)
             #print(i, cost_func.nets.terms[0].item().real, penalty, slope)
 
 test_gradient_descent_TFIM()
