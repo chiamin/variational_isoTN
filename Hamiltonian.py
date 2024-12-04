@@ -12,13 +12,13 @@ def make_H_XX ():
     H += 0.5 * prod(sm, sp)
     return H
 
-def make_H_TFIM (Jz):
+def make_H_TFIM (Jz, hx):
     sx = 0.5*np.array([[0,1],[1,0]],dtype=float)
     sz = 0.5*np.array([[1,0],[0,-1]],dtype=float)
     I = np.eye(2)
     def prod (A, B):
         return ncon ([A,B], ((-1,-3), (-2,-4)))
-    H = prod (sx, sx)
+    H = hx * prod (sx, sx)
     H += 0.5*Jz * prod(sz, I)
     H += 0.5*Jz * prod(I, sz)
     return H
